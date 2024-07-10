@@ -4,21 +4,21 @@
 
 __global__ void reduce_baseline(const int* input, int* output, size_t n){
 
-    int sum = 0;
-    for(size_t i = 0; i < n; i ++ ){
-        sum += input[i];
-    }
+  int sum = 0;
+  for(size_t i = 0; i < n; i ++ ) {
+    sum += input[i];
+  }
 
-    *output = sum;
+  *output = sum;
 
 }
 
 bool CheckResult(int *out, int groudtruth, int n){
-    if(*out != groudtruth){
-        return false;
-    }else{
-        return true;
-    }
+  if(*out != groudtruth){
+    return false;
+  } else {
+      return true;
+  }
 }
 
 int main() {
