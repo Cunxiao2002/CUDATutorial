@@ -2,6 +2,8 @@
 #include<cuda.h>
 #include "cuda_runtime.h"
 
+//reduce_baseline:1733.15ms
+
 __global__ void reduce_baseline(const int* input, int* output, size_t n){
 
   int sum = 0;
@@ -25,7 +27,7 @@ int main() {
     float millseconds = 0;
     const int N = 25600000;
     
-    cudaSetDevice(0);
+    cudaSetDevice(7);
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, 0);
 

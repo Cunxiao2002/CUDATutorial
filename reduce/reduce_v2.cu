@@ -2,10 +2,10 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 
-//v0:shared memory优化
-//latency:0.978ms
+//v2:
+//latency:0.537ms
 template<int blocksize>
-__global__ void reduce_v0(float *d_in, float *d_out) {
+__global__ void reduce_v1(float *d_in, float *d_out) {
   int tid = threadIdx.x;
   int gtid = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -13,12 +13,11 @@ __global__ void reduce_v0(float *d_in, float *d_out) {
 
   //load data to smem
   smem[tid] = d_in[gtid];
+  __syncthreads();
 
   //compute
-  //每个block中进行reduce计算，结果存在thread = 0
-  //输出的d_out是一个数组，存放每个block reduce的result
-  for(int i = 1; i < blockDim.x; i *= 2) {
-    if(tid % (2 * i) == 0) {
+  for(int i = blockDim.x / 2; i > 0; i /= 2) {
+    if(tid < i) { 
       smem[tid] += smem[tid + i];
     }
     __syncthreads();
@@ -29,7 +28,6 @@ __global__ void reduce_v0(float *d_in, float *d_out) {
     d_out[blockIdx.x] = smem[0];
   }
 }
-
 
 bool CheckResult(float* out, float groudtruth, int n) {
   float res = 0.0;
@@ -45,7 +43,7 @@ bool CheckResult(float* out, float groudtruth, int n) {
 
 int main() {
   //定义设备信息
-  cudaSetDevice(7);
+  cudaSetDevice(0);
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, 0);
 
@@ -80,7 +78,7 @@ int main() {
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
-  reduce_v0<blocksize> <<<Grid, Block>>> (d_a, d_out);
+  reduce_v1<blocksize> <<<Grid, Block>>> (d_a, d_out);
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&millisecond, start, stop);
@@ -96,7 +94,7 @@ int main() {
     printf("the wrong anwser is %.2f\n", out[0]);
     printf("the groudtruth is %.2f\n", groudtruth);
   }
-  printf("reduce_v0 latency = %.6f ms \n", millisecond);
+  printf("reduce_v1 latency = %.6f ms \n", millisecond);
 
   //释放内存
   cudaFree(d_a);
