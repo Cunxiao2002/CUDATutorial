@@ -2,8 +2,8 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 
-//v3:
-//latency:
+//v3:一个thread处理两个数据，减少thread的使用数量
+//latency:0.413ms
 template<int blocksize>
 __global__ void reduce_v3(float *d_in, float *d_out) {
   int tid = threadIdx.x;

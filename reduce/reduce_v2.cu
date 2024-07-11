@@ -2,8 +2,8 @@
 #include <cuda_runtime.h>
 #include <cuda.h>
 
-//v2:
-//latency:0.537ms
+//v2:改变reduce的方式，原本是紧邻的两个thread进行reduce，改成前一半和后一半进行reduce
+//latency:0.502ms
 template<int blocksize>
 __global__ void reduce_v1(float *d_in, float *d_out) {
   int tid = threadIdx.x;
@@ -90,11 +90,11 @@ int main() {
   if(is_right) {
     printf("the anwser is right\n");
   } else {
-    printf("the anwser is wrong\n");
+    //printf("the anwser is wrong\n");
     printf("the wrong anwser is %.2f\n", out[0]);
     printf("the groudtruth is %.2f\n", groudtruth);
   }
-  printf("reduce_v1 latency = %.6f ms \n", millisecond);
+  printf("reduce_v2 latency = %.6f ms \n", millisecond);
 
   //释放内存
   cudaFree(d_a);
