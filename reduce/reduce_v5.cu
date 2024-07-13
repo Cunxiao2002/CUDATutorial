@@ -92,7 +92,7 @@ bool CheckResult(float* out, float groudtruth, int n) {
 
 int main() {
   //定义设备信息
-  cudaSetDevice(0);
+  cudaSetDevice(6);
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, 0);
 
